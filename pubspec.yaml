@@ -1,0 +1,38 @@
+name: audio_gpx
+description: "Make GPX files accessible to the visually impaired."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0-334.4.beta
+
+dependencies:
+  backstreets_widgets: ^0.24.1
+  cupertino_icons: ^1.0.8
+  dio: ^5.7.0
+  flutter:
+    sdk: flutter
+  flutter_audio_games: ^0.32.0
+  flutter_riverpod: ^2.6.1
+  flutter_soloud: ^2.1.7
+  geolocator: ^13.0.2
+  geoxml: ^2.6.1
+  path: ^1.9.0
+  path_provider: ^2.1.5
+  riverpod_annotation: ^2.6.1
+  time: ^2.1.4
+
+dev_dependencies:
+  build_runner: ^2.4.13
+  custom_lint: ^0.7.0
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  riverpod_generator: ^2.6.2
+  riverpod_lint: ^2.6.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
