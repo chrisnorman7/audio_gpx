@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geoxml/geoxml.dart';
@@ -27,13 +28,15 @@ Future<Directory> documentsDirectory(final Ref ref) async {
 /// Provide a list of GPX files.
 @riverpod
 Future<List<GpxFile>> gpxFiles(final Ref ref) async {
-  final directory = await ref.watch(documentsDirectoryProvider.future);
-  final files = directory.listSync().whereType<File>();
   final gpxFiles = <GpxFile>[];
-  for (final file in files) {
-    final data = file.readAsStringSync();
-    final gpx = await GeoXml.fromGpxString(data);
-    gpxFiles.add(GpxFile(gpx: gpx, file: file));
+  if (!kIsWeb) {
+    final directory = await ref.watch(documentsDirectoryProvider.future);
+    final files = directory.listSync().whereType<File>();
+    for (final file in files) {
+      final data = file.readAsStringSync();
+      final gpx = await GeoXml.fromGpxString(data);
+      gpxFiles.add(GpxFile(gpx: gpx, file: file));
+    }
   }
   if (gpxFiles.isEmpty) {
     final string = await rootBundle.loadString(Assets.coventryWay);

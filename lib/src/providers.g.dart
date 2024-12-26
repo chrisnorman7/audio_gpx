@@ -27,7 +27,7 @@ final documentsDirectoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DocumentsDirectoryRef = AutoDisposeFutureProviderRef<Directory>;
-String _$gpxFilesHash() => r'92a5e600848d7ff6803857bba1cfcf14aa8e463e';
+String _$gpxFilesHash() => r'543d298ccf1156964421d9b214e6f216ba5a96ed';
 
 /// Provide a list of GPX files.
 ///
