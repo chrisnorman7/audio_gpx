@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/screens.dart';
 import 'package:backstreets_widgets/shortcuts.dart';
 import 'package:backstreets_widgets/widgets.dart';
@@ -133,37 +132,42 @@ class GpxFileScreenState extends State<GpxFileScreen> {
                   ),
                 );
               }
+              final autofocus = index == 0;
+              final titleWidget = Semantics(
+                liveRegion: autofocus,
+                child: Text('$name: $description'),
+              );
+              final subtitleWidget = Semantics(
+                liveRegion: autofocus,
+                child: Text(
+                  // ignore: lines_longer_than_80_chars
+                  '${distance.prettyPrintDistance()} at ${degrees.floor()} °',
+                ),
+              );
+              if (menuButtons.isEmpty) {
+                return ListTile(
+                  autofocus: autofocus,
+                  title: titleWidget,
+                  subtitle: subtitleWidget,
+                  onTap: () {},
+                );
+              }
               return MenuAnchor(
                 menuChildren: menuButtons,
-                builder: (final context, final controller, final child) {
-                  final autofocus = index == 0;
-                  return ListTile(
-                    autofocus: autofocus,
-                    selected: point.links.isNotEmpty,
-                    title: Semantics(
-                      liveRegion: autofocus,
-                      child: Text('$name: $description'),
-                    ),
-                    subtitle: Semantics(
-                      liveRegion: autofocus,
-                      child: Text(
-                        // ignore: lines_longer_than_80_chars
-                        '${distance.prettyPrintDistance()} at ${degrees.floor()} °',
-                      ),
-                    ),
-                    onTap: () {
-                      if (menuButtons.isEmpty) {
-                        context.showMessage(
-                          message: 'This point has no links.',
-                        );
-                      } else if (controller.isOpen) {
-                        controller.close();
-                      } else {
-                        controller.open();
-                      }
-                    },
-                  );
-                },
+                builder: (final context, final controller, final child) =>
+                    ListTile(
+                  autofocus: autofocus,
+                  selected: true,
+                  title: titleWidget,
+                  subtitle: subtitleWidget,
+                  onTap: () {
+                    if (controller.isOpen) {
+                      controller.close();
+                    } else {
+                      controller.open();
+                    }
+                  },
+                ),
                 key: ValueKey('Point-${orderedPoint.index}'),
               );
             },
