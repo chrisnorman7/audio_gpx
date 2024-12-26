@@ -13,7 +13,8 @@ class Assets {
   static const String farther = 'assets/FARTHER.wav';
   static const String nearer = 'assets/NEARER.wav';
   static const String coventryWay = 'assets/coventry_way.gpx';
+  static const String progress = 'assets/progress.wav';
 
   /// List of all assets
-  static List<String> get values => [farther, nearer, coventryWay];
+  static List<String> get values => [farther, nearer, coventryWay, progress];
 }
