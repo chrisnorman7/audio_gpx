@@ -41,7 +41,7 @@ class GpxFileScreenState extends State<GpxFileScreen> {
   Position? _position;
 
   /// The timer which updates location.
-  late final Timer _timer;
+  late Timer _timer;
 
   /// The points, ordered by distance from the current position.
   late List<IndexedPoint> _orderedPoints;
@@ -92,12 +92,12 @@ class GpxFileScreenState extends State<GpxFileScreen> {
     } else {
       child = CallbackShortcuts(
         bindings: {
-          CrossPlatformSingleActivator(LogicalKeyboardKey.keyR): updatePosition,
+          CrossPlatformSingleActivator(LogicalKeyboardKey.keyR): refresh,
         },
         child: SimpleScaffold(
           actions: [
             IconButton(
-              onPressed: updatePosition,
+              onPressed: refresh,
               icon: const Icon(Icons.refresh),
               tooltip: 'Refresh',
             ),
@@ -240,5 +240,12 @@ class GpxFileScreenState extends State<GpxFileScreen> {
         _position = position;
       });
     }
+  }
+
+  /// Refresh the app.
+  Future<void> refresh() async {
+    _timer.cancel();
+    _timer = Timer.periodic(30.seconds, (final _) => updatePosition());
+    await updatePosition();
   }
 }
