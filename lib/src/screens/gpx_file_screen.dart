@@ -121,24 +121,33 @@ class GpxFileScreenState extends State<GpxFileScreen> {
             }
             return MenuAnchor(
               menuChildren: menuButtons,
-              builder: (final context, final controller, final child) =>
-                  ListTile(
-                autofocus: index == 0,
-                selected: point.links.isNotEmpty,
-                title: Text('$name: $description'),
-                subtitle: Text(
-                  '${distance.prettyPrintDistance()} at ${degrees.floor()} °',
-                ),
-                onTap: () {
-                  if (menuButtons.isEmpty) {
-                    context.showMessage(message: 'This point has no links.');
-                  } else if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                },
-              ),
+              builder: (final context, final controller, final child) {
+                final autofocus = index == 0;
+                return ListTile(
+                  autofocus: autofocus,
+                  selected: point.links.isNotEmpty,
+                  title: Semantics(
+                    liveRegion: autofocus,
+                    child: Text('$name: $description'),
+                  ),
+                  subtitle: Semantics(
+                    liveRegion: autofocus,
+                    child: Text(
+                      // ignore: lines_longer_than_80_chars
+                      '${distance.prettyPrintDistance()} at ${degrees.floor()} °',
+                    ),
+                  ),
+                  onTap: () {
+                    if (menuButtons.isEmpty) {
+                      context.showMessage(message: 'This point has no links.');
+                    } else if (controller.isOpen) {
+                      controller.close();
+                    } else {
+                      controller.open();
+                    }
+                  },
+                );
+              },
             );
           },
           itemCount: _orderedPoints.length,
