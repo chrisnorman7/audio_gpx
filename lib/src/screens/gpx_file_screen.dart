@@ -93,7 +93,8 @@ class GpxFileScreenState extends State<GpxFileScreen> {
         title: title,
         body: ListView.builder(
           itemBuilder: (final context, final index) {
-            final point = _orderedPoints[index].point;
+            final orderedPoint = _orderedPoints[index];
+            final point = orderedPoint.point;
             final name = point.name ?? 'Unknown Route';
             final description = point.desc ?? point.cmt ?? point.tag;
             final distance = Geolocator.distanceBetween(
@@ -148,6 +149,7 @@ class GpxFileScreenState extends State<GpxFileScreen> {
                   },
                 );
               },
+              key: ValueKey('Point-${orderedPoint.index}'),
             );
           },
           itemCount: _orderedPoints.length,
