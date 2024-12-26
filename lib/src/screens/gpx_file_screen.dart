@@ -124,6 +124,7 @@ class GpxFileScreenState extends State<GpxFileScreen> {
               builder: (final context, final controller, final child) =>
                   ListTile(
                 autofocus: index == 0,
+                selected: point.links.isNotEmpty,
                 title: Text('$name: $description'),
                 subtitle: Text(
                   '${distance.prettyPrintDistance()} at ${degrees.floor()} °',
