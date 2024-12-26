@@ -1,5 +1,6 @@
 import 'package:backstreets_widgets/screens.dart';
 import 'package:backstreets_widgets/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -67,8 +68,7 @@ class PermissionsScreenState extends State<PermissionsScreen> {
       case true:
         final permission = _permission;
         if (permission == null) {
-          Geolocator.checkPermission()
-              .then((final value) => setState(() => _permission = value));
+          _checkPermissions();
           return const SimpleScaffold(
             title: 'Location Permissions',
             body: CenterText(
@@ -82,22 +82,42 @@ class PermissionsScreenState extends State<PermissionsScreen> {
           return GpxFileScreen(gpxFile: widget.gpxFile);
         } else {
           return SimpleScaffold(
-            actions: [
-              IconButton(
-                onPressed: () => setState(() {}),
-                icon: const Icon(Icons.refresh),
-                tooltip: 'Refresh',
-              ),
-            ],
             title: 'Error',
-            body: CenterText(
-              text:
-                  // ignore: lines_longer_than_80_chars
-                  'This app needs location permissions in order to work (${permission.name}).',
-              autofocus: true,
+            body: Column(
+              children: [
+                CenterText(
+                  text:
+                      // ignore: lines_longer_than_80_chars
+                      'This app needs location permissions in order to work (${permission.name}).',
+                  autofocus: true,
+                ),
+                TextButton(
+                  onPressed: () {
+                    Geolocator.requestPermission().then(
+                      (final p) => _permission = p,
+                    );
+                  },
+                  child: const Text('Request permission'),
+                ),
+              ],
             ),
           );
         }
     }
+  }
+
+  /// Check permissions cross platform.
+  Future<void> _checkPermissions() async {
+    if (kIsWeb) {
+      try {
+        await Geolocator.getCurrentPosition();
+        _permission = LocationPermission.whileInUse;
+      } on Exception {
+        _permission = LocationPermission.denied;
+      }
+    } else {
+      _permission = await Geolocator.checkPermission();
+    }
+    setState(() {});
   }
 }
