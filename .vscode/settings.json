@@ -1,11 +1,16 @@
 {
   "cSpell.words": [
     "bools",
+    "cmt",
     "geolocator",
     "geoxml",
     "gpx",
+    "lat",
+    "lon",
     "recase",
     "riverpod",
-    "soloud"
+    "soloud",
+    "Wpt",
+    "wpts"
   ]
 }
