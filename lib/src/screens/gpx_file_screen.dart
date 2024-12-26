@@ -4,13 +4,16 @@ import 'package:backstreets_widgets/extensions.dart';
 import 'package:backstreets_widgets/screens.dart';
 import 'package:backstreets_widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_audio_games/flutter_audio_games.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geoxml/geoxml.dart';
 import 'package:time/time.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../gen/assets.gen.dart';
 import '../extensions/double_x.dart';
 import '../gpx_file.dart';
+import '../indexed_point.dart';
 
 /// A screen to help navigate a single [gpxFile].
 class GpxFileScreen extends StatefulWidget {
@@ -30,28 +33,28 @@ class GpxFileScreen extends StatefulWidget {
 
 /// State for [GpxFileScreen].
 class GpxFileScreenState extends State<GpxFileScreen> {
+  /// The loaded gpx data.
+  GeoXml get gpx => widget.gpxFile.gpx;
+
   /// The current location.
   Position? _position;
 
   /// The timer which updates location.
   late final Timer _timer;
 
-  /// The index of the target point.
+  /// The points, ordered by distance from the current position.
+  late List<IndexedPoint> _orderedPoints;
+
+  /// The index of the current point.
   late int _index;
 
   /// Initialise state.
   @override
   void initState() {
     super.initState();
-    Geolocator.getCurrentPosition()
-        .then((final position) => setState(() => _position = position));
-    _timer = Timer.periodic(30.seconds, (final t) async {
-      final position = await Geolocator.getCurrentPosition();
-      setState(() {
-        _position = position;
-      });
-    });
-    _index = 0;
+    _index = -1;
+    updatePosition();
+    _timer = Timer.periodic(30.seconds, (final t) => updatePosition());
   }
 
   /// Dispose of the widget.
@@ -61,9 +64,6 @@ class GpxFileScreenState extends State<GpxFileScreen> {
     _timer.cancel();
     _position = null;
   }
-
-  /// The loaded gpx data.
-  GeoXml get gpx => widget.gpxFile.gpx;
 
   /// Build a widget.
   @override
@@ -89,29 +89,11 @@ class GpxFileScreenState extends State<GpxFileScreen> {
         ),
       );
     } else {
-      final sortedPoints = List<Wpt>.from(points)
-        ..sort(
-          (final a, final b) {
-            final aDistance = Geolocator.distanceBetween(
-              position.latitude,
-              position.longitude,
-              a.lat!,
-              a.lon!,
-            );
-            final bDistance = Geolocator.distanceBetween(
-              position.latitude,
-              position.longitude,
-              b.lat!,
-              b.lon!,
-            );
-            return aDistance.compareTo(bDistance);
-          },
-        );
       child = SimpleScaffold(
         title: title,
         body: ListView.builder(
           itemBuilder: (final context, final index) {
-            final point = sortedPoints[index];
+            final point = _orderedPoints[index].point;
             final name = point.name ?? 'Unknown Route';
             final description = point.desc ?? point.cmt ?? point.tag;
             final distance = Geolocator.distanceBetween(
@@ -158,11 +140,68 @@ class GpxFileScreenState extends State<GpxFileScreen> {
               ),
             );
           },
-          itemCount: sortedPoints.length,
+          itemCount: _orderedPoints.length,
           shrinkWrap: true,
         ),
       );
     }
     return Cancel(child: child);
+  }
+
+  /// The function to call to update the current position.
+  Future<void> updatePosition() async {
+    final position = await Geolocator.getCurrentPosition();
+    final oldPosition = _position;
+    final latitude = position.latitude;
+    final longitude = position.longitude;
+    if (oldPosition == null ||
+        Geolocator.distanceBetween(
+              oldPosition.latitude,
+              oldPosition.longitude,
+              latitude,
+              longitude,
+            ) >
+            position.accuracy) {
+      _orderedPoints = [
+        for (var i = 0; i < gpx.wpts.length; i++)
+          IndexedPoint(index: i, point: gpx.wpts[i]),
+      ]..sort(
+          (final a, final b) {
+            final aPoint = a.point;
+            final bPoint = b.point;
+            final aDistance = Geolocator.distanceBetween(
+              latitude,
+              longitude,
+              aPoint.lat!,
+              aPoint.lon!,
+            );
+            final bDistance = Geolocator.distanceBetween(
+              latitude,
+              longitude,
+              bPoint.lat!,
+              bPoint.lon!,
+            );
+            return aDistance.compareTo(bDistance);
+          },
+        );
+      if (_orderedPoints.isNotEmpty) {
+        final index = _orderedPoints.first.index;
+        if (mounted) {
+          if (index < _index) {
+            await context.playSound(
+              Assets.farther.asSound(destroy: true, soundType: SoundType.asset),
+            );
+          } else if (index > _index) {
+            await context.playSound(
+              Assets.nearer.asSound(destroy: true, soundType: SoundType.asset),
+            );
+          }
+          _index = index;
+        }
+      }
+      setState(() {
+        _position = position;
+      });
+    }
   }
 }

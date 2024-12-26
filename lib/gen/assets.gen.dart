@@ -10,8 +10,10 @@
 class Assets {
   Assets._();
 
+  static const String farther = 'assets/FARTHER.wav';
+  static const String nearer = 'assets/NEARER.wav';
   static const String coventryWay = 'assets/coventry_way.gpx';
 
   /// List of all assets
-  static List<String> get values => [coventryWay];
+  static List<String> get values => [farther, nearer, coventryWay];
 }
