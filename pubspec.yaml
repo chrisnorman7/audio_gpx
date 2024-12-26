@@ -8,7 +8,7 @@ environment:
   sdk: ^3.6.0-334.4.beta
 
 dependencies:
-  backstreets_widgets: ^0.24.1
+  backstreets_widgets: ^0.25.0
   cupertino_icons: ^1.0.8
   dio: ^5.7.0
   flutter:
